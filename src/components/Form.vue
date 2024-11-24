@@ -14,57 +14,98 @@
                     <option value="circle">Círculo</option>
                     <option disabled>Figuras Tridimensionales</option>
                     <option value="prisma">Prisma</option>
-                    <option value="octohedron">Octaedro</option>
                 </select>
                 <div v-if="selectedFigure !== ''" class="figuresContainer">
                     <label>                        
                         {{ figuresLabelText }} {{ selectedFigureText }}
                     </label>
-                    <div class="triangleSides" v-if="selectedFigure === 'triangle'">
-                        <label for="trianguleSide1">
-                            Lado 1
-                            <input type="number" v-model="side1" name="trianguleSide1" id="trianguleSide1">
-                        </label>
-                        <label for="trianguleSide2">
-                            Lado 2
-                            <input type="number" v-model="side2" name="trianguleSide2" id="trianguleSide2">
-                        </label>
-                        <label for="trianguleSide3">
-                            Lado 3
-                            <input type="number" v-model="side3" name="trianguleSide3" id="trianguleSide3">
-                        </label>
+                    <div class="tripleSideFigures" v-if="selectedFigure === 'triangle'">
+                        <InputFile 
+                            label="Lado 1"
+                            v-model="side1"
+                            id="trianguleSide1"
+                            name="trianguleSide1"
+                        />
+                        <InputFile 
+                            label="Lado 2"
+                            v-model="side2"
+                            id="trianguleSide2"
+                            name="trianguleSide2"
+                        />
+                        <InputFile 
+                            label="Lado 3"
+                            v-model="side3"
+                            id="trianguleSide3"
+                            name="trianguleSide3"
+                        />
                     </div>
-                    <div class="rectangleSides" v-if="selectedFigure === 'rectangle'">
-                        <label for="rectangleSide1">
-                            Lado 1 (n^2)
-                            <input type="number" v-model="side1" name="rectangleSide1" id="rectangleSide1">
-                        </label>
-                        <label for="rectangleSide2">
-                            Lado 2 (n^2)
-                            <input type="number" v-model="side2" name="rectangleSide2" id="rectangleSide2">
-                        </label>
+                    <div class="doubleSideFigures" v-if="selectedFigure === 'rectangle'">
+                        <InputFile 
+                            label="Lado 1 (2L1)"
+                            v-model="side1"
+                            id="rectangleSide1"
+                            name="rectangleSide1"
+                        />
+                        <InputFile 
+                            label="Lado 2 (2L2)"
+                            v-model="side2"
+                            id="rectangleSide2"
+                            name="rectangleSide2"
+                        />
                     </div>
-                    <div class="otherFiguresSides" v-if="selectedFigure === 'square'">
-                        <label for="squareSide1">
-                            Lado (n^4)
-                            <input type="number" v-model="side1" name="squareSide1" id="squareSide1">
-                        </label>
+                    <div class="oneSideFigures" v-if="selectedFigure === 'square'">
+                        <InputFile 
+                            label="Lado (4L)"
+                            v-model="side1"
+                            id="squareSide1"
+                            name="squareSide1"
+                        />
                     </div>
-                    <div class="otherFiguresSides" v-if="selectedFigure === 'circle'">
-                        <label for="circleRadius">
-                            Radio
-                            <input type="number" v-model="radius" name="circleRadius" id="circleRadius">
-                        </label>
+                    <div class="oneSideFigures" v-if="selectedFigure === 'circle'">
+                        <InputFile 
+                            label="Radio"
+                            v-model="radius"
+                            id="circleRadius"
+                            name="circleRadius"
+                        />
+                    </div>
+                    <div class="doubleSideFigures" v-if="selectedFigure === 'prisma'">
+                        <InputFile 
+                            label="Base"
+                            v-model="side1"
+                            id="prismaSide1"
+                            name="prismaSide1"
+                        />
+                        <InputFile 
+                            label="Altura"
+                            v-model="side2"
+                            id="prismaSide2"
+                            name="prismaSide2"
+                        />
                     </div>
                 </div>
-                <div class="results" v-if="perimiter !== 0">
-                    <label for="perimeter">
-                        El perímetro de la figura {{ selectedFigureText }} es:
-                    </label>
-                    <input type="number" v-model="perimiter" name="perimeter" id="perimeter" readonly>
+                <div v-if="perimiter !== 0">
+                    <InputFile 
+                        :label="`El perímetro de la figura ${selectedFigureText} es:`" 
+                        v-model="perimiter"
+                        id="perimeter"
+                        name="perimeter"
+                        class="results"
+                        readonly
+                    />
+                </div>
+                <div v-if="volume !== 0">
+                    <InputFile 
+                        :label="`El volumen de la figura ${selectedFigureText} es:`" 
+                        v-model="volume"
+                        id="volume"
+                        name="volume"
+                        class="results"
+                        readonly
+                    />
                 </div>
                 <div class="buttonsGroup">                        
-                    <button v-if="perimiter !== 0" @click="resetInputs" type="button">Limpiar</button>
+                    <button v-if="perimiter !== 0 || volume !== 0" @click="resetInputs" type="button">Limpiar</button>
                     <button @click="Calculate" type="button">Calcular</button>
                 </div>
             </div>
@@ -88,32 +129,24 @@
         margin: 8px 0;
     }
 
-    input {
-        display: block;
-        padding: 10px 20px;
-        margin: 8px 0;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
-    .triangleSides {
+    .tripleSideFigures {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         justify-items: center;
         gap: 1em;
     }
-    .triangleSides input {
+    .tripleSideFigures input {
         max-width: 100px;
     }
 
-    .rectangleSides {
+    .doubleSideFigures {
         display: grid;
         grid-template-columns: 1fr 1fr;
         justify-items: center;
         gap: 1em;
     }
 
-    .otherFiguresSides {
+    .oneSideFigures {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -142,20 +175,28 @@
 </style>
 <script setup>
 import { ref, computed } from 'vue'
+import InputFile from './InputFile.vue'
 
-const selectedFigure = ref('')
-const selectedFigureText = ref('')
-const figuresLabelText = computed(() => {
-    return selectedFigure.value === 'circle'
-    ? 'Ingrese el radio de la figura'
-    : 'Ingrese los lados de la figura'
-})
 const perimiter = ref(0)
+const volume = ref(0)
 const side1 = ref(0)
 const side2 = ref(0)
 const side3 = ref(0)
 const radius = ref(0)
 const pi = Math.PI
+const selectedFigure = ref('')
+const selectedFigureText = ref('')
+
+const figuresLabelText = computed(() => {
+    if (selectedFigure.value === 'circle') {
+        return 'Ingrese el radio de la figura'
+    } else if (selectedFigure.value === 'prisma') {
+        return 'Ingrese la base y la altura de la figura'
+    } else {
+        return 'Ingrese los lados de la figura'
+    }
+    return 'No se seleccionó ninguna figura'
+})
 
 function handleSelectedFigure(event) {
     selectedFigureText.value = event.target.selectedOptions[0].text
@@ -163,11 +204,12 @@ function handleSelectedFigure(event) {
 }
 
 function resetInputs() {
+    perimiter.value = 0
+    volume.value = 0
     side1.value = 0
     side2.value = 0
     side3.value = 0
     radius.value = 0
-    perimiter.value = 0
 }
 
 function Calculate() {
@@ -183,13 +225,9 @@ function Calculate() {
             break;
         case 'circle':
             perimiter.value = 2 * pi * radius.value
-            console.log(pi)
             break;
         case 'prisma':
-            console.log('Prisma')
-            break;
-        case 'octohedron':
-            console.log('Octaedro')
+            volume.value = side1.value * side2.value
             break;
         default:
             console.log('No se seleccionó ninguna figura')
