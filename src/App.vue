@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Formulary />
+    <Form />
   </div>
 </template>
 
@@ -8,5 +8,5 @@
 
 </style>
 <script setup>
-import Formulary from './components/Formulary.vue'
+import Form from './components/Form.vue'
 </script>

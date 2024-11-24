@@ -16,9 +16,9 @@
                     <option value="prisma">Prisma</option>
                     <option value="octohedron">Octaedro</option>
                 </select>
-                <div class="figuresContainer">
-                    <label>
-                            Ingrese los lados de la figura {{ selectedFigureText }}
+                <div v-if="selectedFigure !== ''" class="figuresContainer">
+                    <label>                        
+                        {{ figuresLabelText }} {{ selectedFigureText }}
                     </label>
                     <div class="triangleSides" v-if="selectedFigure === 'triangle'">
                         <label for="trianguleSide1">
@@ -34,12 +34,37 @@
                             <input type="number" v-model="side3" name="trianguleSide3" id="trianguleSide3">
                         </label>
                     </div>
-                    <div class="results" v-if="perimiter !== ''">
-                        <label for="perimeter">
-                            El perímetro de la figura {{ selectedFigureText }} es:
-                            <input type="number" v-model="perimiter" name="perimeter" id="perimeter" readonly>
+                    <div class="rectangleSides" v-if="selectedFigure === 'rectangle'">
+                        <label for="rectangleSide1">
+                            Lado 1 (n^2)
+                            <input type="number" v-model="side1" name="rectangleSide1" id="rectangleSide1">
+                        </label>
+                        <label for="rectangleSide2">
+                            Lado 2 (n^2)
+                            <input type="number" v-model="side2" name="rectangleSide2" id="rectangleSide2">
                         </label>
                     </div>
+                    <div class="otherFiguresSides" v-if="selectedFigure === 'square'">
+                        <label for="squareSide1">
+                            Lado (n^4)
+                            <input type="number" v-model="side1" name="squareSide1" id="squareSide1">
+                        </label>
+                    </div>
+                    <div class="otherFiguresSides" v-if="selectedFigure === 'circle'">
+                        <label for="circleRadius">
+                            Radio
+                            <input type="number" v-model="radius" name="circleRadius" id="circleRadius">
+                        </label>
+                    </div>
+                </div>
+                <div class="results" v-if="perimiter !== 0">
+                    <label for="perimeter">
+                        El perímetro de la figura {{ selectedFigureText }} es:
+                    </label>
+                    <input type="number" v-model="perimiter" name="perimeter" id="perimeter" readonly>
+                </div>
+                <div class="buttonsGroup">                        
+                    <button v-if="perimiter !== 0" @click="resetInputs" type="button">Limpiar</button>
                     <button @click="Calculate" type="button">Calcular</button>
                 </div>
             </div>
@@ -48,10 +73,8 @@
 </template>
 
 <style scoped>
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    .container * {
+        text-align: center;
     }
     select {
         padding: 10px 20px;
@@ -81,8 +104,21 @@
     }
     .triangleSides input {
         max-width: 100px;
-        text-align: center;
     }
+
+    .rectangleSides {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        justify-items: center;
+        gap: 1em;
+    }
+
+    .otherFiguresSides {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     button {
         padding: 8px 20px;
         margin: 8px 0;
@@ -91,16 +127,35 @@
         cursor: pointer;
     }
 
+    .results {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .buttonsGroup {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
 </style>
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const selectedFigure = ref('')
 const selectedFigureText = ref('')
-const perimiter = ref('')
-const side1 = ref('')
-const side2 = ref('')
-const side3 = ref('')
+const figuresLabelText = computed(() => {
+    return selectedFigure.value === 'circle'
+    ? 'Ingrese el radio de la figura'
+    : 'Ingrese los lados de la figura'
+})
+const perimiter = ref(0)
+const side1 = ref(0)
+const side2 = ref(0)
+const side3 = ref(0)
+const radius = ref(0)
+const pi = Math.PI
 
 function handleSelectedFigure(event) {
     selectedFigureText.value = event.target.selectedOptions[0].text
@@ -108,30 +163,27 @@ function handleSelectedFigure(event) {
 }
 
 function resetInputs() {
-    side1.value = ''
-    side2.value = ''
-    side3.value = ''
-    perimiter.value = ''
+    side1.value = 0
+    side2.value = 0
+    side3.value = 0
+    radius.value = 0
+    perimiter.value = 0
 }
 
 function Calculate() {
-    console.log('Calcular')
     switch (selectedFigure.value) {
         case 'triangle':
-        perimiter.value = side1.value + side2.value + side3.value
-            console.log('Triángulo')
-            console.log(side1.value)
-            console.log(side2.value)
-            console.log(side3.value)
-            break;
-        case 'square':
-            console.log('Cuadrado')
+            perimiter.value = side1.value + side2.value + side3.value
             break;
         case 'rectangle':
-            console.log('Rectángulo')
+            perimiter.value = 2 * side1.value + 2 * side2.value
+            break;
+        case 'square':
+            perimiter.value = 4 * side1.value
             break;
         case 'circle':
-            console.log('Círculo')
+            perimiter.value = 2 * pi * radius.value
+            console.log(pi)
             break;
         case 'prisma':
             console.log('Prisma')
