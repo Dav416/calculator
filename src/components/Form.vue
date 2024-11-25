@@ -84,25 +84,9 @@
                         />
                     </div>
                 </div>
-                <div v-if="perimiter !== 0">
-                    <InputFile 
-                        :label="`El perímetro de la figura ${selectedFigureText} es:`" 
-                        v-model="perimiter"
-                        id="perimeter"
-                        name="perimeter"
-                        class="results"
-                        readonly
-                    />
-                </div>
-                <div v-if="volume !== 0">
-                    <InputFile 
-                        :label="`El volumen de la figura ${selectedFigureText} es:`" 
-                        v-model="volume"
-                        id="volume"
-                        name="volume"
-                        class="results"
-                        readonly
-                    />
+                <div v-if="perimiter !== 0 || volume !== 0">
+                    <p>{{ calculateResultLabel }}</p>
+                    <p><strong>{{ calculateResultValue }}</strong></p>
                 </div>
                 <div class="buttonsGroup">                        
                     <button v-if="perimiter !== 0 || volume !== 0" @click="resetInputs" type="button">Limpiar</button>
@@ -114,14 +98,15 @@
 </template>
 
 <style scoped>
-    .container * {
-        text-align: center;
-    }
     select {
-        padding: 10px 20px;
+        padding: 10px 0px;
         margin: 8px 0;
         border: 1px solid #ccc;
         border-radius: 4px;
+    }
+
+    option {
+        text-align: center;
     }
 
     label {
@@ -160,10 +145,8 @@
         cursor: pointer;
     }
 
-    .results {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    p {
+        font-size: 1.2rem;
     }
 
     .buttonsGroup {
@@ -176,6 +159,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import InputFile from './InputFile.vue'
+import confetti from 'canvas-confetti';
 
 const perimiter = ref(0)
 const volume = ref(0)
@@ -187,6 +171,14 @@ const pi = Math.PI
 const selectedFigure = ref('')
 const selectedFigureText = ref('')
 
+const showConfetti = () => {
+    confetti({
+        particleCount: 100, // Número de partículas
+        spread: 200,         // Ángulo de dispersión
+        origin: { y: 0.6 }, // Posición del confeti en la pantalla
+    })
+}
+
 const figuresLabelText = computed(() => {
     if (selectedFigure.value === 'circle') {
         return 'Ingrese el radio de la figura'
@@ -195,7 +187,21 @@ const figuresLabelText = computed(() => {
     } else {
         return 'Ingrese los lados de la figura'
     }
-    return 'No se seleccionó ninguna figura'
+})
+
+const calculateResultLabel = computed(() => {
+    if (volume.value !== 0) {
+        return `El volumen de la figura ${selectedFigureText.value} es de ` 
+    }
+    return `El perímetro de la figura ${selectedFigureText.value} es de `
+})
+
+const calculateResultValue = computed(() => {
+    if (volume.value !== 0) {
+        return `${volume.value} cm³`
+    }
+    return `${perimiter.value} cm`
+    
 })
 
 function handleSelectedFigure(event) {
@@ -213,24 +219,35 @@ function resetInputs() {
 }
 
 function Calculate() {
+    let calculationCompleted = false
     switch (selectedFigure.value) {
         case 'triangle':
             perimiter.value = side1.value + side2.value + side3.value
+            calculationCompleted = true
             break;
         case 'rectangle':
             perimiter.value = 2 * side1.value + 2 * side2.value
+            calculationCompleted = true
             break;
         case 'square':
             perimiter.value = 4 * side1.value
+            calculationCompleted = true
             break;
         case 'circle':
             perimiter.value = 2 * pi * radius.value
+            calculationCompleted = true
             break;
         case 'prisma':
             volume.value = side1.value * side2.value
+            calculationCompleted = true
             break;
         default:
             console.log('No se seleccionó ninguna figura')
+    }
+    if (calculationCompleted) {
+        if (perimiter.value !== 0 || volume.value !== 0) {
+            showConfetti()
+        }
     }
 }
 </script>
